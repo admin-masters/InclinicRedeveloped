@@ -1,0 +1,19 @@
+{% extends 'education/base.html' %}
+{% block content %}
+<h4 class='mb-3'>Field Reps for Campaign {{ campaign.id }}</h4>
+<div class='card card-soft p-3'>
+  <form class='row g-2 mb-3'>
+    <div class='col-9'><input class='form-control' name='q' value='{{ request.GET.q }}' placeholder='Search by field rep id or email'></div>
+    <div class='col-3'><button class='btn btn-outline-primary w-100'>Search</button></div>
+  </form>
+  <div class='table-responsive'>
+    <table class='table'>
+      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th></tr></thead>
+      <tbody>
+      {% for r in reps %}<tr><td>{{ r.brand_rep_id }}</td><td>{{ r.name }}</td><td>{{ r.email }}</td><td>{{ r.phone }}</td></tr>
+      {% empty %}<tr><td colspan='4'>No reps found.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

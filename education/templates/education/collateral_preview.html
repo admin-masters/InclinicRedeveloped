@@ -1,0 +1,63 @@
+{% extends 'education/base.html' %}
+{% block content %}
+<div class='card card-soft p-3'>
+  {% if collateral.banner_1 %}<img class='img-fluid rounded mb-3' src='{{ collateral.banner_1.url }}'>{% endif %}
+  <p class='mb-2'><strong>Shared by:</strong> {{ collateral.doctor_name|default:'Field Representative' }}</p>
+
+  {% if vimeo_embed_url %}
+  <div class='ratio ratio-16x9 mb-3'>
+    <iframe id='vimeo-player' src='{{ vimeo_embed_url }}' frameborder='0' allow='autoplay; fullscreen; picture-in-picture' allowfullscreen></iframe>
+  </div>
+  {% elif collateral.vimeo_url %}
+    <a href='{{ collateral.vimeo_url }}' target='_blank' class='btn btn-outline-primary btn-sm mb-3'>Open video</a>
+  {% endif %}
+
+  {% if collateral.pdf_file %}
+  <div class='mb-2'>
+    <embed src='{{ collateral.pdf_file.url }}' width='100%' height='430'>
+  </div>
+  <div class='d-flex flex-wrap gap-2 mb-3'>
+    <a id='pdf-download-btn' class='btn btn-primary' href='{{ collateral.pdf_file.url }}' download>Download PDF</a>
+    <button id='last-page-btn' class='btn btn-outline-success' type='button'>I Reached Last Page</button>
+  </div>
+  {% endif %}
+
+  {% if collateral.banner_2 %}<img class='img-fluid rounded mt-2' src='{{ collateral.banner_2.url }}'>{% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src='https://player.vimeo.com/api/player.js'></script>
+<script>
+(function(){
+  const shareCode = '{{ share.short_code|default:"" }}';
+  const track = (type, percentage='') => {
+    if (!shareCode) return;
+    const q = new URLSearchParams({type});
+    if (percentage !== '') q.set('percentage', percentage);
+    fetch(`/s/${shareCode}/track/?` + q.toString(), {method:'GET'});
+  };
+
+  const dl = document.getElementById('pdf-download-btn');
+  if (dl) dl.addEventListener('click', ()=> track('pdf_downloaded'));
+
+  const lastBtn = document.getElementById('last-page-btn');
+  if (lastBtn) lastBtn.addEventListener('click', ()=> {
+    track('pdf_last_page');
+    lastBtn.disabled = true;
+    lastBtn.textContent = 'Last Page Tracked';
+  });
+
+  const iframe = document.getElementById('vimeo-player');
+  if (iframe && shareCode) {
+    const player = new Vimeo.Player(iframe);
+    let hit50 = false, hit100 = false;
+    player.on('timeupdate', function(data) {
+      const p = Math.round((data.percent || 0) * 100);
+      if (!hit50 && p >= 50) { track('video_progress', 50); hit50 = true; }
+      if (!hit100 && p >= 99) { track('video_progress', 100); hit100 = true; }
+    });
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'education/base.html' %}
+{% block content %}
+<div class='row g-3'>
+  <div class='col-12 col-lg-5'>
+    <div class='card card-soft p-3'>
+      <h5>Share to Doctor</h5>
+      <form method='post'>
+        {% csrf_token %}
+        {{ form.doctor_name.label_tag }} {{ form.doctor_name }}
+        {{ form.doctor_whatsapp.label_tag }} {{ form.doctor_whatsapp }}
+        <label class='form-label mt-2'>Collateral</label>
+        <select class='form-select' name='collateral'>
+          {% for c in collaterals %}<option value='{{ c.id }}'>{{ c.content_title }}</option>{% endfor %}
+        </select>
+        <button class='btn btn-success mt-3 w-100'>Send Message</button>
+      </form>
+    </div>
+  </div>
+  <div class='col-12 col-lg-7'>
+    <div class='card card-soft p-3'>
+      <h5>Assigned Doctors</h5>
+      <div class='table-responsive'>
+      <table class='table table-sm'>
+        <tr><th>Doctor</th><th>Phone</th><th>Status</th></tr>
+        {% for doctor, status in doctor_rows %}
+        <tr><td>{{ doctor.name }}</td><td>{{ doctor.whatsapp_number }}</td><td>{{ status }}</td></tr>
+        {% empty %}<tr><td colspan='3'>No doctors yet.</td></tr>{% endfor %}
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

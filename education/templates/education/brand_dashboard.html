@@ -1,0 +1,22 @@
+{% extends 'education/base.html' %}
+{% block content %}
+<h3 class='mb-3'>Brand Manager Dashboard</h3>
+<div class='card card-soft p-3'>
+  <div class='table-responsive'>
+    <table class='table'>
+      <thead><tr><th>Campaign</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for c in campaigns %}
+      <tr>
+        <td>{{ c.id }}</td>
+        <td>
+          <a href='{% url "brand_field_reps" c.id %}'>Field Reps</a> |
+          <a href='{% url "brand_reports" c.id %}'>Brand Report</a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan='2'>No campaigns available.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

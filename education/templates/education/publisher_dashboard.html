@@ -1,0 +1,27 @@
+{% extends 'education/base.html' %}
+{% block content %}
+<div class='d-flex flex-wrap justify-content-between align-items-center mb-3'>
+  <h3 class='mb-2'>Publisher Dashboard</h3>
+  <a class='btn btn-success' href='{% url "add_campaign" %}'>Add Campaign</a>
+</div>
+<div class='card card-soft p-3'>
+  <h6>Existing Campaigns</h6>
+  <div class='table-responsive'>
+    <table class='table table-sm'>
+      <thead><tr><th>Campaign ID</th><th>Brand</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for c in campaigns %}
+      <tr>
+        <td>{{ c.id }}</td><td>{{ c.brand_name }}</td>
+        <td>
+          <a href='{% url "campaign_detail" c.id %}'>Detail</a> |
+          <a href='{% url "inclinic_config" c.id %}'>In-Clinic Config</a> |
+          <a href='{% url "collateral_manage" c.id %}'>Collaterals</a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan='3' class='text-muted'>No campaigns yet.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
