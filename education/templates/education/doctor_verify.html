@@ -1,0 +1,1 @@
+{% extends 'education/base.html' %}{% block content %}<h3>Verify Number</h3><form method='post'>{% csrf_token %}<input name='phone' class='form-control' maxlength='10'><button class='btn btn-primary mt-2'>Verify</button></form>{% endblock %}

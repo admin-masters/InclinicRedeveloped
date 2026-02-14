@@ -1,0 +1,1 @@
+{% extends 'education/base.html' %}{% block content %}<h3>Campaign Detail</h3><p>{{campaign.id}}</p><p>{{campaign.company_name}} / {{campaign.brand_name}}</p><a href='{% url "upload_field_reps" campaign.id %}'>Upload Field Reps</a> | <a href='{% url "collateral_manage" campaign.id %}'>Manage Collateral</a>{% endblock %}
