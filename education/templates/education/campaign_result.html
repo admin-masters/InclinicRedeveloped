@@ -1,0 +1,1 @@
+{% extends 'education/base.html' %}{% block content %}<h3>Campaign Created</h3><p>ID: {{campaign.id}}</p><ul>{% for s in campaign.systems.all %}<li>{{s.get_system_display}} {% if s.system == 'inclinic' %}<a href='{% url "inclinic_config" campaign.id %}'>Configure</a>{% else %}(placeholder){% endif %}</li>{% endfor %}</ul>{% endblock %}
