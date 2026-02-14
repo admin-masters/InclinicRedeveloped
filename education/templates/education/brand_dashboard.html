@@ -1,0 +1,1 @@
+{% extends 'education/base.html' %}{% block content %}<h3>Brand Manager Dashboard</h3><ul>{% for c in campaigns %}<li><a href='{% url "brand_reports" c.id %}'>{{c.id}}</a></li>{% endfor %}</ul>{% endblock %}
