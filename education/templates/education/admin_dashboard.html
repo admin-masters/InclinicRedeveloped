@@ -1,0 +1,10 @@
+{% extends 'education/base.html' %}
+{% block content %}
+<h3>Administrator Dashboard</h3>
+<p>No role profile is required for superusers. Use links below to inspect campaign reporting.</p>
+<ul>
+  {% for c in campaigns %}
+    <li>{{ c.id }} - {{ c.brand_name }} | <a href="{% url 'brand_reports' c.id %}">Brand Report</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}
