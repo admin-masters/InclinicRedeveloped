@@ -90,4 +90,14 @@ class FlowTests(BaseSetup):
         )
         self.client.login(username='bm', password='x')
         resp = self.client.get(reverse('brand_reports', args=[self.campaign.id]))
-        self.assertContains(resp, 'Clicked: 1')
+        self.assertContains(resp, 'Clicked')
+        self.assertContains(resp, '<h4>1</h4>')
+
+    def test_brand_report_sync_now_moves_transaction_events(self):
+        share, _ = create_share(self.campaign, self.rep, self.doc, self.col)
+        Event.objects.create(event_type='pdf_downloaded', campaign=self.campaign, collateral=self.col, field_rep=self.rep, doctor=self.doc, share_instance=share)
+        self.client.login(username='bm', password='x')
+        resp = self.client.post(reverse('brand_reports', args=[self.campaign.id]), {'action': 'sync_now'})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Event.objects.count(), 0)
+        self.assertGreater(ReportingEvent.objects.using('reporting').count(), 0)

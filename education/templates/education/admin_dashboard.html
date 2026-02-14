@@ -1,10 +1,18 @@
 {% extends 'education/base.html' %}
 {% block content %}
-<h3>Administrator Dashboard</h3>
-<p>No role profile is required for superusers. Use links below to inspect campaign reporting.</p>
-<ul>
-  {% for c in campaigns %}
-    <li>{{ c.id }} - {{ c.brand_name }} | <a href="{% url 'brand_reports' c.id %}">Brand Report</a></li>
-  {% endfor %}
-</ul>
+<h3 class='mb-3'>Administrator Dashboard</h3>
+<div class='alert alert-secondary'>Use links below to navigate between publisher and report flows quickly.</div>
+<div class='mb-3'><a class='btn btn-success btn-sm' href='/publisher/campaign/add/'>Create Campaign</a></div>
+<div class='card card-soft p-3'>
+  <div class='table-responsive'>
+  <table class='table'>
+    <thead><tr><th>Campaign ID</th><th>Brand</th><th>Go to</th></tr></thead>
+    <tbody>
+      {% for c in campaigns %}
+      <tr><td>{{ c.id }}</td><td>{{ c.brand_name }}</td><td><a href='/publisher/campaign/{{ c.id }}/detail/'>Campaign Detail</a> | <a href='/brand/{{ c.id }}/reports/'>Brand Report</a></td></tr>
+      {% empty %}<tr><td colspan='3'>No campaigns yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
 {% endblock %}

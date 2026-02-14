@@ -1,1 +1,15 @@
-{% extends 'education/base.html' %}{% block content %}<h3>Field Rep Login</h3><form method='post'>{% csrf_token %}{{form.as_p}}<button class='btn btn-primary'>Continue</button></form>{% endblock %}
+{% extends 'education/base.html' %}
+{% block content %}
+<div class='row justify-content-center'>
+  <div class='col-12 col-md-6'>
+    <div class='card card-soft p-4'>
+      <h4>Field Representative Login</h4>
+      <form method='post'>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class='btn btn-primary'>Continue</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

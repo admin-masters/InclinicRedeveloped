@@ -1,1 +1,32 @@
-{% extends 'education/base.html' %}{% block content %}<h3>Brand Report</h3><ul><li>Unique doctors: {{summary.unique_doctors}}</li><li>Clicked: {{summary.clicked}}</li><li>Downloads: {{summary.downloads}}</li><li>Last Page: {{summary.last_page}}</li><li>Video 50: {{summary.video_50}}</li><li>Video 100: {{summary.video_100}}</li><li>Total: {{summary.total}}</li></ul>{% endblock %}
+{% extends 'education/base.html' %}
+{% block content %}
+<div class='d-flex justify-content-between align-items-center mb-3'>
+  <h4>Brand Report</h4>
+  <form method='post' class='m-0'>
+    {% csrf_token %}
+    <input type='hidden' name='action' value='sync_now'>
+    <button class='btn btn-primary btn-sm'>Sync Latest Transactions</button>
+  </form>
+</div>
+<div class='row g-3 mb-3'>
+  <div class='col-6 col-md-3'><div class='card card-soft p-3'><small>Unique doctors</small><h4>{{ summary.unique_doctors }}</h4></div></div>
+  <div class='col-6 col-md-3'><div class='card card-soft p-3'><small>Clicked</small><h4>{{ summary.clicked }}</h4></div></div>
+  <div class='col-6 col-md-3'><div class='card card-soft p-3'><small>Downloads</small><h4>{{ summary.downloads }}</h4></div></div>
+  <div class='col-6 col-md-3'><div class='card card-soft p-3'><small>Last Page</small><h4>{{ summary.last_page }}</h4></div></div>
+  <div class='col-6 col-md-3'><div class='card card-soft p-3'><small>Video 50%</small><h4>{{ summary.video_50 }}</h4></div></div>
+  <div class='col-6 col-md-3'><div class='card card-soft p-3'><small>Video 100%</small><h4>{{ summary.video_100 }}</h4></div></div>
+  <div class='col-6 col-md-3'><div class='card card-soft p-3'><small>Total</small><h4>{{ summary.total }}</h4></div></div>
+</div>
+<div class='card card-soft p-3'>
+  <h6>Recent Events</h6>
+  <div class='table-responsive'>
+    <table class='table table-sm'>
+      <thead><tr><th>Event</th><th>Doctor ID</th><th>Collateral</th><th>Time</th></tr></thead>
+      <tbody>
+      {% for e in events %}<tr><td>{{ e.event_type }}</td><td>{{ e.doctor_id }}</td><td>{{ e.collateral_id }}</td><td>{{ e.created_at }}</td></tr>
+      {% empty %}<tr><td colspan='4'>No reporting events yet. Click "Sync Latest Transactions".</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

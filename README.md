@@ -32,3 +32,8 @@ python manage.py test
 ## Cron (every 3 hours)
 
 Use the entry documented in `deploy/cron.md`.
+
+## Reporting refresh during manual testing
+
+- Brand Report now includes a **Sync Latest Transactions** button to trigger `sync_reporting` immediately.
+- Production scheduling should still use cron every 3 hours.

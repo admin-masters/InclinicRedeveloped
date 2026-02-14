@@ -1,1 +1,12 @@
-{% extends 'education/base.html' %}{% block content %}<h3>In-Clinic Configuration</h3><form method='post' enctype='multipart/form-data'>{% csrf_token %}{{form.as_p}}<button class='btn btn-primary'>Save</button></form>{% endblock %}
+{% extends 'education/base.html' %}
+{% block content %}
+<div class='card card-soft p-4'>
+  <h4>In-Clinic Configuration</h4>
+  <p class='text-muted'>Campaign: {{ campaign.id }}</p>
+  <form method='post' enctype='multipart/form-data'>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class='btn btn-primary'>Save</button>
+  </form>
+</div>
+{% endblock %}

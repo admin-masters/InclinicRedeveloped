@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.core.management import call_command
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -259,6 +260,10 @@ def brand_reports(request, campaign_id):
     denied = _require_role(request, 'brand_manager')
     if denied:
         return denied
+    if request.method == 'POST' and request.POST.get('action') == 'sync_now':
+        call_command('sync_reporting')
+        messages.success(request, 'Reporting sync executed successfully.')
+        return redirect('brand_reports', campaign_id=campaign_id)
     events = ReportingEvent.objects.using('reporting').filter(campaign_id=campaign_id)
     summary = {
         'unique_doctors': events.values('doctor_id').distinct().count(),

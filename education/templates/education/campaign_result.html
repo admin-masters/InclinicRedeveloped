@@ -1,1 +1,13 @@
-{% extends 'education/base.html' %}{% block content %}<h3>Campaign Created</h3><p>ID: {{campaign.id}}</p><ul>{% for s in campaign.systems.all %}<li>{{s.get_system_display}} {% if s.system == 'inclinic' %}<a href='{% url "inclinic_config" campaign.id %}'>Configure</a>{% else %}(placeholder){% endif %}</li>{% endfor %}</ul>{% endblock %}
+{% extends 'education/base.html' %}
+{% block content %}
+<div class='card card-soft p-4'>
+  <h4>Campaign Created</h4>
+  <p><strong>ID:</strong> {{ campaign.id }}</p>
+  <ul>
+    {% for s in campaign.systems.all %}
+      <li>{{ s.get_system_display }} {% if s.system == 'inclinic' %}<a href='{% url "inclinic_config" campaign.id %}'>Configure</a>{% else %}<span class='text-muted'>(placeholder)</span>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  <a href='{% url "campaign_detail" campaign.id %}' class='btn btn-outline-primary btn-sm'>Campaign Detail</a>
+</div>
+{% endblock %}
