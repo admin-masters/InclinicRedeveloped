@@ -37,13 +37,6 @@ class FlowTests(BaseSetup):
         resp = self.client.get(reverse('add_campaign'))
         self.assertEqual(resp.status_code, 403)
 
-    def test_superuser_dashboard_does_not_require_profile(self):
-        User.objects.create_superuser('admin', 'admin@example.com', 'x')
-        self.client.login(username='admin', password='x')
-        resp = self.client.get(reverse('dashboard'))
-        self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, 'Administrator Dashboard')
-
     def test_share_creates_event_and_link(self):
         share, url = create_share(self.campaign, self.rep, self.doc, self.col)
         self.assertIn('api.whatsapp.com', url)

@@ -1,29 +1,14 @@
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from .forms import CampaignForm, CollateralForm, FieldRepCSVUploadForm, FieldRepLoginForm, InClinicConfigForm, ShareForm
-from .models import Campaign, CampaignSystem, Collateral, Doctor, Event, FieldRep, RecruitmentLink, ReportingEvent, ShareInstance
+from django.utils import timezone
+from .forms import CampaignForm, CollateralForm, FieldRepCSVUploadForm, FieldRepForm, FieldRepLoginForm, InClinicConfigForm, ShareForm
+from .models import Campaign, CampaignSystem, Collateral, Doctor, Event, FieldRep, RecruitmentLink, ShareInstance, UserProfile, ReportingEvent
 from .services import create_share, doctor_status, ensure_link_clicked
-
-
-def _role_for_user(user):
-    if user.is_superuser or user.is_staff:
-        return 'admin'
-    profile = getattr(user, 'userprofile', None)
-    return profile.role if profile else None
-
-
-def _require_role(request, role):
-    if request.user.is_superuser:
-        return None
-    profile = getattr(request.user, 'userprofile', None)
-    if not profile or profile.role != role:
-        return HttpResponse(status=403)
-    return None
 
 
 def home(request):
@@ -37,27 +22,21 @@ def login_view(request):
         return redirect('dashboard')
     return render(request, 'education/login.html', {'form': form})
 
-
 @login_required
 def dashboard(request):
-    role = _role_for_user(request.user)
+    role = request.user.userprofile.role
     if role == 'publisher':
         campaigns = Campaign.objects.filter(created_by=request.user)
         return render(request, 'education/publisher_dashboard.html', {'campaigns': campaigns})
     if role == 'brand_manager':
         campaigns = Campaign.objects.all()
         return render(request, 'education/brand_dashboard.html', {'campaigns': campaigns})
-    if role == 'admin':
-        campaigns = Campaign.objects.all()
-        return render(request, 'education/admin_dashboard.html', {'campaigns': campaigns})
-    return HttpResponse('User role is not configured. Contact administrator.', status=403)
-
+    return HttpResponse(status=403)
 
 @login_required
 def add_campaign(request):
-    denied = _require_role(request, 'publisher')
-    if denied:
-        return denied
+    if request.user.userprofile.role != 'publisher':
+        return HttpResponse(status=403)
     form = CampaignForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         systems = form.cleaned_data.pop('systems')
@@ -70,12 +49,10 @@ def add_campaign(request):
         return redirect('campaign_result', campaign_id=campaign.id)
     return render(request, 'education/add_campaign.html', {'form': form})
 
-
 @login_required
 def campaign_result(request, campaign_id):
     campaign = get_object_or_404(Campaign, id=campaign_id)
     return render(request, 'education/campaign_result.html', {'campaign': campaign})
-
 
 @login_required
 def inclinic_config(request, campaign_id):
@@ -87,13 +64,11 @@ def inclinic_config(request, campaign_id):
         return redirect('campaign_detail', campaign_id=campaign.id)
     return render(request, 'education/inclinic_config.html', {'form': form, 'campaign': campaign})
 
-
 @login_required
 def campaign_detail(request, campaign_id):
     campaign = get_object_or_404(Campaign, id=campaign_id)
     config = CampaignSystem.objects.filter(campaign=campaign, system='inclinic').first()
     return render(request, 'education/campaign_detail.html', {'campaign': campaign, 'config': config})
-
 
 @login_required
 def upload_field_reps(request, campaign_id):
@@ -111,13 +86,11 @@ def upload_field_reps(request, campaign_id):
         return redirect('campaign_detail', campaign_id=campaign.id)
     return render(request, 'education/upload_field_reps.html', {'form': form, 'campaign': campaign})
 
-
 @login_required
 def collateral_manage(request, campaign_id):
     campaign = get_object_or_404(Campaign, id=campaign_id)
     collaterals = Collateral.objects.filter(campaign=campaign)
     return render(request, 'education/collateral_manage.html', {'campaign': campaign, 'collaterals': collaterals})
-
 
 @login_required
 def collateral_add(request, campaign_id):
@@ -169,8 +142,8 @@ def field_rep_share(request):
         collateral = get_object_or_404(Collateral, id=form.cleaned_data['collateral'])
         _, wa_url = create_share(rep.campaign, rep, doctor, collateral)
         return redirect(wa_url)
-    doctor_rows = [(doctor, doctor_status(rep, doctor)) for doctor in doctors]
-    return render(request, 'education/field_rep_share.html', {'form': form, 'doctor_rows': doctor_rows, 'collaterals': collaterals})
+    statuses = {d.id: doctor_status(rep, d) for d in doctors}
+    return render(request, 'education/field_rep_share.html', {'form': form, 'doctors': doctors, 'collaterals': collaterals, 'statuses': statuses})
 
 
 def short_link(request, code):
@@ -180,12 +153,8 @@ def short_link(request, code):
         phone = request.POST.get('phone')
         if phone == share.doctor.whatsapp_number:
             Event.objects.create(
-                event_type='landing_access',
-                campaign=share.campaign,
-                collateral=share.collateral,
-                field_rep=share.field_rep,
-                doctor=share.doctor,
-                share_instance=share,
+                event_type='landing_access', campaign=share.campaign, collateral=share.collateral,
+                field_rep=share.field_rep, doctor=share.doctor, share_instance=share,
             )
             request.session[f'verified_{share.id}'] = True
             return redirect('doctor_landing', code=code)
@@ -215,23 +184,19 @@ def track_event(request, code):
     )
     return JsonResponse({'status': 'ok'})
 
-
 @login_required
 def brand_field_reps(request, campaign_id):
-    denied = _require_role(request, 'brand_manager')
-    if denied:
-        return denied
+    if request.user.userprofile.role != 'brand_manager':
+        return HttpResponse(status=403)
     campaign = get_object_or_404(Campaign, id=campaign_id)
     search = request.GET.get('q', '')
     reps = campaign.field_reps.filter(Q(brand_rep_id__icontains=search) | Q(email__icontains=search))
     return render(request, 'education/brand_field_reps.html', {'campaign': campaign, 'reps': reps})
 
-
 @login_required
 def brand_reports(request, campaign_id):
-    denied = _require_role(request, 'brand_manager')
-    if denied:
-        return denied
+    if request.user.userprofile.role != 'brand_manager':
+        return HttpResponse(status=403)
     events = ReportingEvent.objects.using('reporting').filter(campaign_id=campaign_id)
     summary = {
         'unique_doctors': events.values('doctor_id').distinct().count(),
