@@ -1,0 +1,9 @@
+{% extends 'education/base.html' %}{% block content %}
+<div class='card p-3'>
+{% if collateral.banner_1 %}<img class='img-fluid mb-2' src='{{ collateral.banner_1.url }}'>{% endif %}
+<p><strong>Shared by:</strong> {{collateral.doctor_name}}</p>
+{% if vimeo_embed_url %}<iframe src='{{vimeo_embed_url}}' width='100%' height='300' frameborder='0' allow='autoplay; fullscreen; picture-in-picture' allowfullscreen></iframe>{% elif collateral.vimeo_url %}<a href='{{ collateral.vimeo_url }}' target='_blank'>Open video</a>{% endif %}
+{% if collateral.pdf_file %}<embed src='{{collateral.pdf_file.url}}' width='100%' height='400'><a class='btn btn-primary mt-2' href='{{collateral.pdf_file.url}}'>Download PDF</a>{% endif %}
+{% if collateral.banner_2 %}<img class='img-fluid mt-2' src='{{ collateral.banner_2.url }}'>{% endif %}
+</div>
+{% endblock %}

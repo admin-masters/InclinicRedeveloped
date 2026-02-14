@@ -1,0 +1,1 @@
+{% extends 'education/base.html' %}{% block content %}<h3>Publisher Dashboard</h3><a class='btn btn-success' href='{% url "add_campaign" %}'>Add Campaign</a><ul>{% for c in campaigns %}<li>{{c.id}} - {{c.brand_name}}</li>{% endfor %}</ul>{% endblock %}
