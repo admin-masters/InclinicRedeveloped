@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from urllib.parse import urlparse
 from .forms import CampaignForm, CollateralForm, FieldRepCSVUploadForm, FieldRepLoginForm, InClinicConfigForm, ShareForm
 from .models import Campaign, CampaignSystem, Collateral, Doctor, Event, FieldRep, RecruitmentLink, ReportingEvent, ShareInstance, UserProfile
 from .services import create_share, doctor_status, ensure_link_clicked
@@ -139,7 +140,25 @@ def collateral_add(request, campaign_id):
 
 def preview_collateral(request, collateral_id):
     collateral = get_object_or_404(Collateral, id=collateral_id)
-    return render(request, 'education/collateral_preview.html', {'collateral': collateral})
+    return render(request, 'education/collateral_preview.html', {
+        'collateral': collateral,
+        'vimeo_embed_url': _to_vimeo_embed_url(collateral.vimeo_url),
+    })
+
+
+def _to_vimeo_embed_url(url):
+    if not url:
+        return ''
+    parsed = urlparse(url)
+    if 'vimeo.com' not in parsed.netloc:
+        return ''
+    path = parsed.path.strip('/')
+    if not path:
+        return ''
+    video_id = path.split('/')[-1]
+    if not video_id.isdigit():
+        return ''
+    return f'https://player.vimeo.com/video/{video_id}'
 
 
 def field_rep_login(request):
@@ -201,7 +220,11 @@ def doctor_landing(request, code):
     share = get_object_or_404(ShareInstance, short_code=code)
     if not request.session.get(f'verified_{share.id}'):
         return redirect('short_link', code=code)
-    return render(request, 'education/collateral_preview.html', {'collateral': share.collateral, 'share': share})
+    return render(request, 'education/collateral_preview.html', {
+        'collateral': share.collateral,
+        'share': share,
+        'vimeo_embed_url': _to_vimeo_embed_url(share.collateral.vimeo_url),
+    })
 
 
 def track_event(request, code):

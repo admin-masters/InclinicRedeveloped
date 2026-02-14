@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from .models import Campaign, CampaignSystem, Collateral, Doctor, Event, FieldRep, ReportingEvent, ShareInstance, UserProfile
 from .services import create_share, doctor_status
+from .views import _to_vimeo_embed_url
 
 
 class BaseSetup(TestCase):
@@ -27,6 +28,11 @@ class BaseSetup(TestCase):
 
 
 class FlowTests(BaseSetup):
+    def test_vimeo_embed_url_normalization(self):
+        self.assertEqual(_to_vimeo_embed_url('https://vimeo.com/12345'), 'https://player.vimeo.com/video/12345')
+        self.assertEqual(_to_vimeo_embed_url('https://vimeo.com/channels/staffpicks/54321'), 'https://player.vimeo.com/video/54321')
+        self.assertEqual(_to_vimeo_embed_url('https://example.com/video/1'), '')
+
     def test_publisher_access(self):
         self.client.login(username='pub', password='x')
         resp = self.client.get(reverse('dashboard'))

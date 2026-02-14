@@ -24,6 +24,11 @@ python manage.py test
 - `default`: transaction DB (operational writes)
 - `reporting`: analytics DB (read-only from report views)
 
+## Media files in development
+
+- Uploaded files are served through `/media/` in `DEBUG=True`.
+- Example: a file stored at `pdfs/RFAAWSCommands.pdf` is available at `/media/pdfs/RFAAWSCommands.pdf`, not `/pdfs/RFAAWSCommands.pdf`.
+
 ## Cron (every 3 hours)
 
 Use the entry documented in `deploy/cron.md`.
