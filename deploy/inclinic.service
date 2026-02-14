@@ -1,0 +1,15 @@
+[Unit]
+Description=InClinic Django Service
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/workspace/InclinicRedeveloped
+Environment="DJANGO_SETTINGS_MODULE=config.settings"
+ExecStart=/usr/bin/python /workspace/InclinicRedeveloped/manage.py runserver 0.0.0.0:8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

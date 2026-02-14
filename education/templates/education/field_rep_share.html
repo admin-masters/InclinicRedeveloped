@@ -1,0 +1,22 @@
+{% extends 'education/base.html' %}
+{% block content %}
+<h3>Share Collateral</h3>
+<form method='post'>
+  {% csrf_token %}
+  {{ form.doctor_name.label_tag }} {{ form.doctor_name }}
+  {{ form.doctor_whatsapp.label_tag }} {{ form.doctor_whatsapp }}
+  <select name='collateral'>
+    {% for c in collaterals %}
+      <option value='{{ c.id }}'>{{ c.content_title }}</option>
+    {% endfor %}
+  </select>
+  <button class='btn btn-success'>Send Message</button>
+</form>
+<hr>
+<table class='table'>
+  <tr><th>Doctor</th><th>Phone</th><th>Status</th></tr>
+  {% for doctor, status in doctor_rows %}
+    <tr><td>{{ doctor.name }}</td><td>{{ doctor.whatsapp_number }}</td><td>{{ status }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

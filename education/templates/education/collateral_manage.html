@@ -1,0 +1,1 @@
+{% extends 'education/base.html' %}{% block content %}<h3>Collaterals</h3><a href='{% url "collateral_add" campaign.id %}'>Add</a><table class='table'><tr><th>Title</th><th>Actions</th></tr>{% for c in collaterals %}<tr><td>{{c.content_title}}</td><td><a href='{% url "preview_collateral" c.id %}'>Preview</a></td></tr>{% endfor %}</table>{% endblock %}
